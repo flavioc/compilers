@@ -17,7 +17,7 @@ swapsk := (datatype,
          func(TVoid, "swap", [x, y],
             decl(Concatenation([it],
                   getVarArrayNames("temp", unroll_bound, datatype),
-                  getVarArrayNames("act", unroll_bound, datatype)),
+                  getVarArrayNames("act", unroll_bound, TInt)),
                chain(
                   loop(it, loop_bound/unroll_bound,
                      FlattenCode(loop(it2, unroll_bound,
