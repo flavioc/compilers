@@ -42,6 +42,35 @@ void ger3(int  *a, int  *x, int  *y, int alpha) {
    }
 }
 
+void ger4(int  *a, int  *x, int  *y, int alpha) {
+   int i, it, j, jt, scaledit, scaledjt, temp1_0, temp1_1
+      , temp2_0, temp2_1, temp3_0, temp3_1, temp4_0, temp4_1;
+   for(it = 0; it <= 2; it++) {
+      scaledit = it;
+      scaledjt = (0*2);
+      temp1_0 = (0 + scaledit);
+      temp2_0 = temp1_0;
+      temp3_0 = (0 + scaledjt);
+      temp4_0 = (x[temp2_0]*y[temp3_0]);
+      temp4_0 = (alpha*temp4_0);
+      temp1_0 = (temp1_0*2);
+      temp1_0 = (temp1_0 + 0);
+      temp1_0 = (temp1_0 + scaledjt);
+      temp1_0 = temp1_0;
+      a[temp1_0] = (a[temp1_0] + temp4_0);
+      temp1_1 = (0 + scaledit);
+      temp2_1 = temp1_1;
+      temp3_1 = (0 + scaledjt);
+      temp4_1 = (x[temp2_1]*y[temp3_1]);
+      temp4_1 = (alpha*temp4_1);
+      temp1_1 = (temp1_1*2);
+      temp1_1 = (temp1_1 + 0);
+      temp1_1 = (temp1_1 + scaledjt);
+      temp1_1 = (temp1_1 + 1);
+      a[temp1_1] = (a[temp1_1] + temp4_1);
+   }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -56,8 +85,17 @@ main(int argc, char **argv)
    int alpha = 2;
 
    print(*m, ROWS, COLS);
-   ger3(*m, x, y, alpha);
+   ger4(*m, x, y, alpha);
    print(*m, ROWS, COLS);
+
+   /* should output this:
+      1 2 
+      3 4 
+      5 6 
+      21 22 
+      43 44 
+      65 66 
+      */
 
    return 0;
 }

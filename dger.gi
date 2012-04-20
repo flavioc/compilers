@@ -20,6 +20,10 @@ gersk := (datatype,
    scaledit := var("scaledit", TInt),
    scaledjt := var("scaledjt", TInt),
    b := var("b", datatype),
+	temp1 := var("temp1", TArray(TInt, unroll_bound)),
+	temp2 := var("temp2", TArray(TInt, unroll_bound)),
+	temp3 := var("temp3", TArray(TInt, unroll_bound)),
+	temp4 := var("temp4", TArray(datatype, unroll_bound)),
 
    min := func(datatype, "min", [a, b],
       IF(leq(a, b), ret(a), ret(b))),
@@ -28,7 +32,11 @@ gersk := (datatype,
       chain(
          min,
          func(TVoid, "ger", [a, x, y, alpha],
-            decl([i, j, it, jt, scaledit, scaledjt],
+            decl(Concatenation([i, j, it, jt, scaledit, scaledjt],
+						getVarArrayNames("temp1", unroll_bound, TInt),
+						getVarArrayNames("temp2", unroll_bound, TInt),
+						getVarArrayNames("temp3", unroll_bound, TInt),
+						getVarArrayNames("temp4", unroll_bound, datatype)),
                chain(
                   loop(it, rows/tilling_rows,
                      chain(
@@ -39,11 +47,19 @@ gersk := (datatype,
                               loop(i, tilling_rows,
                                  loop(j, tilling_cols/unroll_bound,
                                     loop(unroll, unroll_bound,
-                                       assign(nth(a, add(mul(add(i, scaledit), cols),
-																			add(add(j, scaledjt), unroll))),
-															add(nth(a, add(mul(add(i, scaledit), cols),
-																		add(add(j, scaledjt), unroll))),
-																mul(alpha, mul(nth(x, add(i, scaledit)), nth(y, add(j, scaledjt))))))
+													chain(
+														assign(nthVar(temp1, unroll), add(i, scaledit)),
+														assign(nthVar(temp2, unroll), nthVar(temp1, unroll)),
+														assign(nthVar(temp3, unroll), add(j, scaledjt)),
+														assign(nthVar(temp4, unroll), mul(nth(x, nthVar(temp2, unroll)), nth(y, nthVar(temp3, unroll)))),
+														assign(nthVar(temp4, unroll), mul(alpha, nthVar(temp4, unroll))),
+														assign(nthVar(temp1, unroll), mul(nthVar(temp1, unroll), cols)),
+														assign(nthVar(temp1, unroll), add(nthVar(temp1, unroll), j)),
+														assign(nthVar(temp1, unroll), add(nthVar(temp1, unroll), scaledjt)),
+														assign(nthVar(temp1, unroll), add(nthVar(temp1, unroll), unroll)),
+                                       	assign(nth(a, nthVar(temp1, unroll)),
+															add(nth(a, nthVar(temp1, unroll)), nthVar(temp4, unroll)))
+													)
                                     ).unroll()
                                  )
                               )
