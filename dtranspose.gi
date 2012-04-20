@@ -29,6 +29,9 @@ transposesk := (datatype,
    jt := var("jt", TInt),
    scaledit := var("scaledit", TInt),
    scaledjt := var("scaledjt", TInt),
+	temp1 := var("temp1", TArray(TInt, unroll_bound)),
+	temp2 := var("temp2", TArray(TInt, unroll_bound)),
+	temp3 := var("temp3", TArray(TInt, unroll_bound)),
 
    a := var("a", datatype),
    b := var("b", datatype),
@@ -40,7 +43,10 @@ transposesk := (datatype,
       chain(
          min,
          func(TVoid, "transpose", [x, y],
-            decl([i, j, it, jt, scaledit, scaledjt],
+            decl(Concatenation([i, j, it, jt, scaledit, scaledjt],
+							getVarArrayNames("temp1", unroll_bound, TInt),
+							getVarArrayNames("temp2", unroll_bound, TInt),
+							getVarArrayNames("temp3", unroll_bound, TInt)),
                chain(
                   loop(it, rows/tilling_rows,
                      chain(
@@ -52,10 +58,19 @@ transposesk := (datatype,
                                  loop(j, tilling_cols/unroll_bound,
                                     loop(unroll, unroll_bound,
                                        chain(
-                                          assign(nth(y, add(mul(add(j, scaledjt), rows), add(add(i, scaledit), unroll))),
-                                             nth(x, add(mul(add(i, scaledit), cols), add(add(j, scaledjt), unroll))))
+														assign(nthVar(temp1, unroll), add(i, scaledit)),
+														assign(nthVar(temp2, unroll), nthVar(temp1, unroll)),
+														assign(nthVar(temp1, unroll), add(nthVar(temp1, unroll), unroll)),
+														assign(nthVar(temp2, unroll), mul(nthVar(temp2, unroll), cols)),
+														assign(nthVar(temp2, unroll), add(nthVar(temp2, unroll), j)),
+														assign(nthVar(temp2, unroll), add(nthVar(temp2, unroll), scaledjt)),
+														assign(nthVar(temp2, unroll), add(nthVar(temp2, unroll), unroll)),
+														assign(nthVar(temp3, unroll), add(j, scaledjt)),
+														assign(nthVar(temp3, unroll), mul(nthVar(temp3, unroll), rows)),
+														assign(nthVar(temp1, unroll), add(nthVar(temp1, unroll), nthVar(temp3, unroll))),
+														assign(nth(y, nthVar(temp1, unroll)), nth(x, nthVar(temp2, unroll)))
                                        )
-                                    ).unroll()
+                                    )
                                  )
                               )
                            )
@@ -69,5 +84,4 @@ transposesk := (datatype,
    )
 );
 
-
-transpose_int := transposesk(TInt, 20, 20, 5, 2, 2);
+transpose_int := transposesk(TInt, 2, 3, 1, 1, 1);
