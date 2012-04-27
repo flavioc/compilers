@@ -1,0 +1,362 @@
+\title{Aggressive Scheduling for Numerical Programs}
+\author{Richard Veras, Flavio Cruz, Berkin Akin}
+\date{\today}
+\documentclass[12pt]{article}
+
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{amsfonts}   % if you want the fonts
+\usepackage{amssymb}    % if you want extra symbols
+\usepackage{listings}
+%\usepackage{savetrees}
+
+
+\begin{document}
+
+
+\maketitle
+
+\section{Introduction}
+
+Modern compilers are able to transform relatively slow code into fast code
+by performing several optimizations. The majority of such optimizations
+are geared towards general purpose code that is typically full of memory operations and
+branches. This makes sense, since the code that most programmers write falls into this category.
+
+However, there are certain classes of algorithms were this approach falls short in improving
+the performance of the target code. One good example is numerical code. Expert programmers
+are able to take a very na\"\i ve implementation and then fine tune it to take advantage of the
+micro-architecture features of the target machine. Such features include things like software
+pipelining (XXX include citation here) (for improving the performance of Out-Of-Order execution),
+unrolling (by knowing how big are the memory caches of the processor) and pre-fetching.
+Unfortunately, compilers are unable to perform such optimizations due
+to some loss of generality and also because most optimizations performed by a compiler
+cannot see the forest for the trees, and thus can't take into account a complete numerical algorithm.
+This problem is further emphasized by the fact that expert programmers test and tune various permutations
+of their code and its scheduling of instructions, a task that compilers are usually unable to do because
+they would have to guess the structure of the input data and then generate and run small instances of the problem
+to find an optimal solution.
+
+Automatic Program Generation Systems like SPIRAL~\cite{Pueschel:05} is a tool that is able to produce a system
+dependent and highly optimized implementation of an operation from a very high level mathematical description. 
+This is achieved though three mechanism: a language that captures the algorithmic details of an operation, a powerful
+rewriting mechanism that uses that knowledge to map these algorithms to the special features of the hardware (vector
+instructions and parallelism), and a backend code generator that produces a tuned implementation in a high-level language
+(usually C). The choice of the last item is that it provides a means for SPIRAL to be portable by allowing the compiler to do the very
+system specific task of mapping the code to machine instructions.
+
+Since SPIRAL uses C as the target language, this comes at a cost since there is no control over register allocation and
+scheduling. Scheduling in particular plays a very important role in the performance of numerical code. Even on an Out-of-Order
+processor long dependency chains can drastically degrade performance. Thus the goal of our project is to incorporate scheduling,
+namely Software Pipelining, into SPIRAL in a way that we can produce highly-tuned schedules for target architectures.
+This way, we can still use the optimizations available in modern compilers while also performing aggressive scheduling optimizations
+that only experts would be able to do, the best of both worlds.
+
+In this project we explore the problem of scheduling code at the high-level and generate high-performance code that is comparable
+to an expert. XXX
+
+\begin{comment}
++( ) APGS aim to replace expert programmers for high-performance code.
++( ) For some classes of operations they have been very successful, but for
+  others they fall short in performance.
+
++( ) Most expert programmers code their implementations in low-level assembly
+  code and perform micro-architectural specific optimizations that production
+  compilers cannot do for loss of generality.
+
++( ) This is further aggravated by the fact that experts test and tune various
+  permutations of their code and its scheduling, a task that compilers do not
+  do for the same reasoning as above.
+
++( ) Even on out-of-order machines scheduling at the code level is important
+     to minimize the effects of long dependency chains that can cause the
+     system to behave like an in-order processor.
+
+
++( ) APGS tune and optimize an implementation of an operations from the
+  algorithmic level down to the low level just as an expert would, but because
+  these systems rely on a high-level language like C as a target instead of
+  assembly.
+
++( ) As a result these systems must rely on the compiler for instruction
+  scheduling.
+
++( ) One could target assembly instead of a higher-level language but that
+  defeats the purpose of having a portable system that can generate
+  specialized code
+
++( ) How can we effectively schedule code at the high-level and generate
+  high-performance code that is comparable to an expert.
+\end{comment}
+
+\subsection{Our Approach}
+
+To approach this problem, we are directly using SPIRAL \emph{intermediate code} (called ICode)
+to represent several numerical algorithms. Any optimization that is done here can benefit
+lower level code.
+
+We apply several optimizations to the ICode representation of our algorithms. For example,
+for loop unrolling and loop tilling (or loop blocking), we several parameters that allows
+us to set how much unrolling will be done in the inner loop and the size of the tile.
+This gives us great freedom to select the best parameters that will make our final code more
+performant. In addition to these, we also apply software pipelining to the original code.
+We create three states, namely prologue, steady state, and epilogue, to setup, run and finish
+the computation, respectively.
+
+After these transformations, we generate C code from ICode. Of course, the final code will
+have all the optimizations performed at the ICode level, however we developed a technique that
+forces the target C compiler to obey the scheduling we set up during the software pipelining
+transformation. Usually, C compilers tend to remove such scheduling and perform their own optimizations,
+which is not what we want.
+
+Our approach gives us several advantages. The first one is that we are able to generate fully optimized
+code using software pipelining from high level description. The second and final advantage, is that
+we are still able to use the nice features provided by the C compiler (specially portability)
+while tuning the scheduling parameters. 
+
+
+\begin{comment}
++( ) Work directly in the SPIRAL intermediate code. Any optimization that is done
+  here can benefit any operation expressed at a higher level of abstraction.
+
++( ) We use Software Pipelining in addition to loop unrolling and other
+  optimizations that we can fine tune.
+
++( ) We generate the target code in C and use a quality production compiler.
+
++( ) But we instrument our code in such a way that we can force a particular
+  schedule on our code.
+
++( ) Thus we get all of the benefits of APGS and the ability to even tune
+  schedules, but we can still take advantage of the compiler for dealing with
+  mapping our implementation to assembly (reg alloc and such).
+\end{comment}
+
+\subsection{Related Work}
+\begin{verbatim}
++( ) OSKI
++( ) FFTW
++( ) ATLAS/PhiPack
++( ) [Yotov] discusses how ATLAS only needed fine tuning and many of the course
+  adjustments could be determined analytically.
++( ) Lam's software pipelining technique
+\end{verbatim}
+
+\subsection{Our Contributions}
+
+The contributions of this paper are the following:
+
+\begin{description}
+   \item[Software Pipelining] We developed a transform that takes a numerical algorithm and adds software pipelining support
+   using three stages. We are able to mix this optimization with other optimizations such as loop unrolling and loop tilling.
+   Moreover, we were able to apply a technique that disallows C compilers to perform their own scheduling to the code and at
+   the same time, since we generate C code, we are able to use other C compiler optimizations. 
+   \item[Evaluation] We evaluated our programs using several tunable parameters for software pipelining,
+   loop unrolling and loop tilling. The results
+\end{description}
+
+\begin{verbatim}
++( ) A general technique(hack) for forcing schedules in C
++( ) An implemented set of rules in SPIRAL for tunable software pipelining.
++( ) And as a result, potentially faster code that is generated by SPIRAL that is
+  comparable to an expert.
+\end{verbatim}
+
+\begin{comment}
+   Given a loop described at the ICode level we want to do three things:
+   0. Apply a transformation to turn it into a 3 software pipelined loops
+   (prologue, steady state, and epilogue). The prologue and the epilogue
+   space out computation as best as possible while preserving ordering. And
+   the steady state mirrors the original loop in terms of the order of
+   instructions, but the elements that each instruction is operating on are
+   from different loop iterations.
+
+   1. We want unroll all 3 of the loops. We do this because we don't want
+   to deal with register allocation (this would involve implementing
+   iterative-modulo scheduling), we would rather let the compiler figure
+   out the allocations instead. As a bonus, we drop the loop overhead.
+
+   2. Then we want to instrument those instructions with labels from goto
+   statements, so we can force the schedule. By placing a label between
+   each instruction and making the control flow unpredictable at compile
+   time, the compiler is forced to preserve this schedule.
+\end{comment}
+
+
+\section{Details Regarding Design}
+
+% I feel this repeats the introduction
+SPIRAL is an Automatic Program Generation System (APGS) that exploits the mathematical
+structure of algorithms to optimize and fine tune them. Most compilers do
+a poor job of compiling mathematical/numerical algorithms since they don't take advantage
+of the underlying computer architecture. SPIRAL is a feedback-driven compiler because
+it explores the capabilities of the target machine and tries to find the best
+implementation, comparable to the one that would be hand-written by an expert programmer.
+SPIRAL is thus the perfect tool to exploit software pipelining in numeral algorithms.
+
+SPIRAL code is used to declare high level mathematical operations which compiled gets transformed
+into ICode. ICode is the intermediate representation that SPIRAL uses before the code is compiled into C code.
+It represents the abstract syntax tree (AST) of the parsed program.
+It is also possible to write programs in ICode. An example of ICode is presented in Fig.~\ref{fig:dswap}.
+It declares a function that receives two vectors (\texttt{x} and \texttt{y}) and swaps their values.
+In the example, we use unrolling (the second \texttt{loop} construct) to optimize the performance.
+This program has three parameters: \texttt{datatype}, to select the datatype of the vectors;
+\texttt{loop\_bound}, to select the size of both vectors; and, \texttt{unroll\_bound} to select the unrolling factor.
+
+\lstset{basicstyle=\tiny}
+
+\begin{figure}[ht]
+\begin{lstlisting}
+swap := (datatype,
+            loop_bound,
+            unroll_bound) -> let(
+
+   x := var("x", TPtr(datatype)),
+   y := var("y", TPtr(datatype)),
+   it := var("i", TInt),
+   it2 := var("ii", TInt),
+   actuali := var("act", TArray(TInt, loop_bound)),
+   temp := var("temp", TArray(datatype, loop_bound)),
+
+   program(
+      chain(
+         func(TVoid, "swap", [x, y],
+            decl(Concatenation([it],
+                  getVarArrayNames("temp", unroll_bound, datatype),
+                  getVarArrayNames("act", unroll_bound, TInt)),
+               chain(
+                  loop(it, loop_bound/unroll_bound,
+                     FlattenCode(loop(it2, unroll_bound,
+                        chain(
+                           assign(nthVar(actuali, it2), add(it2, mul(it, unroll_bound))),
+                           assign(nthVar(temp, it2), nth(x, nthVar(actuali, it2))),
+                           assign(nth(x, nthVar(actuali, it2)), nth(y, nthVar(actuali, it2))),
+                           assign(nth(y, nthVar(actuali, it2)), nthVar(temp, it2))
+                     )).unroll())
+                  )
+               )
+            )
+         )
+   )
+));
+\end{lstlisting}
+\caption{Swap Example}
+\label{fig:dswap}
+\end{figure}
+
+We can ultimately compile the example in Fig.~\ref{fig:dswap} to C code. If we compile the call to \texttt{swap(TInt, 20, 2)}
+we get the C code in Fig.~\ref{fig:dswap_compiled}.
+
+\begin{figure}[ht]
+\begin{lstlisting}
+void swap(int  *x, int  *y) {
+    int act_0, act_1, i, temp_0, temp_1;
+    for(i = 0; i <= 9; i++) {
+        act_0 = (i*2);
+        temp_0 = x[act_0];
+        x[act_0] = y[act_0];
+        y[act_0] = temp_0;
+        act_1 = (1 + (i*2));
+        temp_1 = x[act_1];
+        x[act_1] = y[act_1];
+        y[act_1] = temp_1;
+    }
+}
+\end{lstlisting}
+\label{fig:dswap_compiled}
+\end{figure}
+
+\subsection{Software Pipelining}
+\begin{verbatim}
++( ) Go into the background of software pipelining. How is it done?
++( ) How do we do it in SPIRAL?
+     -( ) What parameters can we tune? (how much to delay an op)
+     -( ) Formally what does this look like? What is our algorithm?
+\end{verbatim}
+
+\subsection{Enforcing a Schedule}
+\begin{verbatim}
++( ) How do we enforce a schedule at the C level?
++( ) What does the code look like?
++( ) What is some example assembly code?
+
++( ) Would this hack always work? Either way it would be ideal to have a flag
+     or pragma to allow the user to choose a schedule.
+
+\end{verbatim}
+
+
+\subsection{Putting it all Together}
+\begin{verbatim}
++( ) Requirements of the code before we can SP (what optimizations should we
+  do/evaluate automatically?)
+
+\end{verbatim}
+
+
+
+\section{Experimental Setup}
+\begin{verbatim}
++( ) What do we want to demonstrate? Software pipelining can improve the
+     performance even on Out-of-order machines.
+
++( ) What machines will benefit the most from this?
+
++( ) What operations will benefit the most?
+
++( ) We want to show the breakdown of the cycles for each test and where the
+     stalls were occurring.
++( ) What is our testbed? What machines do we use?
+
+
+\end{verbatim}
+
+\subsection{Simple Scalar}
+\begin{verbatim}
++ What is simplescalar and why are we using it?
+
++ We want to be able to determine the types of systems that will benefit the
+  most from this kind of scheduling.
+
++ What parameters will we tune?
+
+\end{verbatim}
+
+
+
+\section{Experimental Evaluation}
+\begin{verbatim}
++ What algorithms are we using?
++ What systems are we using?
+
++ What does the SimpleScalare results show? What systems benefit the most?
+Which ones benefit the least?
+
+
++ How can we fine tune the SP parameters to a system? This is where we vary
+the delays. For example the first few instruction of a loop will most likely
+be loads and the rest will be computations, so can we cluster the memory ops
+and issue them well before the computations.
+
+\end{verbatim}
+
+
+\section{Surprises and Lessons Learned}
+\begin{verbatim}
+\end{verbatim}
+
+\section{Conclusion}
+\begin{verbatim}
++
++
++
++ Future work:
+  - We have incorporated delays in our system, the question is can we use the
+    results from hardware counters to determine the best values for these?
+\end{verbatim}
+
+
+\bibliographystyle{plain}
+\bibliography{draft}
+\end{document}
+
