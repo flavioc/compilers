@@ -1,7 +1,7 @@
 \title{Aggressive Scheduling for Numerical Programs}
 \author{Richard Veras, Flavio Cruz, Berkin Akin}
 \date{\today}
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage{verbatim}
 \usepackage{amsmath}
@@ -13,8 +13,19 @@
 
 \begin{document}
 
-
 \maketitle
+
+\begin{abstract}
+   Certain classes of algorithms are still hard to optimize by modern compilers
+   due to the differences between architecture features.
+   Numerical algorithms, for example, perform better when taking advantage of features
+   such as software pipelining and loop unrolling. Expert programmers are usually able to
+   get the last drop of performance from the hardware, however, compilers cannot do the same
+   for loss of generality. The SPIRAL system bridges this gap by generating machine specific code
+   from high level algorithmic descriptions. We used the SPIRAL system to implement software
+   pipelining for numerical algorithms with XXX (talk about scheduling). Our results show that
+   ....
+\end{abstract}
 
 \section{Introduction}
 
@@ -23,11 +34,11 @@ by performing several optimizations. The majority of such optimizations
 are geared towards general purpose code that is typically full of memory operations and
 branches. This makes sense, since the code that most programmers write falls into this category.
 
-However, there are certain classes of algorithms were this approach falls short in improving
+However, there are certain classes of algorithms where this approach falls short in improving
 the performance of the target code. One good example is numerical code. Expert programmers
 are able to take a very na\"\i ve implementation and then fine tune it to take advantage of the
 micro-architecture features of the target machine. Such features include things like software
-pipelining (XXX include citation here) (for improving the performance of Out-Of-Order execution),
+pipelining~\cite{Rau:81} (for improving the performance of Out-Of-Order execution by interleaving loop iterations),
 unrolling (by knowing how big are the memory caches of the processor) and pre-fetching.
 Unfortunately, compilers are unable to perform such optimizations due
 to some loss of generality and also because most optimizations performed by a compiler
@@ -250,6 +261,8 @@ swap := (datatype,
 We can ultimately compile the example in Fig.~\ref{fig:dswap} to C code. If we compile the call to \texttt{swap(TInt, 20, 2)}
 we get the C code in Fig.~\ref{fig:dswap_compiled}.
 
+\lstset{basicstyle=\small,language=C}
+
 \begin{figure}[ht]
 \begin{lstlisting}
 void swap(int  *x, int  *y) {
@@ -335,24 +348,19 @@ is usually used in conjunction with loop unrolling, this enlarges the code even 
 +( ) We want to show the breakdown of the cycles for each test and where the
      stalls were occurring.
 +( ) What is our testbed? What machines do we use?
-
-
 \end{verbatim}
 
 \subsection{Simple Scalar}
+
 \begin{verbatim}
 + What is simplescalar and why are we using it?
-
 + We want to be able to determine the types of systems that will benefit the
   most from this kind of scheduling.
-
 + What parameters will we tune?
-
 \end{verbatim}
 
-
-
 \section{Experimental Evaluation}
+
 \begin{verbatim}
 + What algorithms are we using?
 + What systems are we using?
@@ -360,14 +368,12 @@ is usually used in conjunction with loop unrolling, this enlarges the code even 
 + What does the SimpleScalare results show? What systems benefit the most?
 Which ones benefit the least?
 
-
 + How can we fine tune the SP parameters to a system? This is where we vary
 the delays. For example the first few instruction of a loop will most likely
 be loads and the rest will be computations, so can we cluster the memory ops
 and issue them well before the computations.
 
 \end{verbatim}
-
 
 \section{Surprises and Lessons Learned}
 \begin{verbatim}
