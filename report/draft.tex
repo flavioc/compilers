@@ -24,7 +24,8 @@
    feat for loss of generality. The SPIRAL system bridges this gap by generating machine specific code
    from high level algorithmic descriptions. We used the SPIRAL system to implement software
    pipelining for numerical algorithms with XXX (talk about scheduling). Our results show that
-   ....
+   by unrolling and applying software pipelining at the C code level, we can
+   improve performance by up to 30\% over unrolling alone.
 \end{abstract}
 
 \section{Introduction}
@@ -331,34 +332,57 @@ effective, each loop is transformed into three sections:
 \begin{description}
    \item[Prologue:] We start adding several iterations to the hardware pipeline.
    This phase ends when the last instruction of the first instruction is to be executed.
-   
+
    \item[Steady State:] This phase starts where the prologue ends. Most execution time is spent
    here and this finishes when the first instruction of the last iteration is executed.
-   
+
    \item[Epilogue:] In this phase, the hardware pipeline executes the last remaining instructions.
 \end{description}
 
 The need to duplicate the loop code into three phases is a notorious disadvantage of software
 pipelining, because it may increase the program's code size. Moreover, since software pipelining
-is usually used in conjunction with loop unrolling, this enlarges the code even more.
+is usually used in conjunction with loop unrolling, this enlarges the code
+even more. While this can be an issue on processors with little to no
+instruction cache, in practice on most modern systems this is not an issue.
 
 \begin{verbatim}
 +( ) Go into the background of software pipelining. How is it done?
 +( ) How do we do it in SPIRAL?
-     -( ) What parameters can we tune? (how much to delay an op)
-     -( ) Formally what does this look like? What is our algorithm?
 \end{verbatim}
 
 \subsection{Enforcing a Schedule}
 \begin{verbatim}
-+( ) How do we enforce a schedule at the C level?
++(X) How do we enforce a schedule at the C level?
 +( ) What does the code look like?
-+( ) What is some example assembly code?
-
-+( ) Would this hack always work? Either way it would be ideal to have a flag
++(X) Would this hack always work? Either way it would be ideal to have a flag
      or pragma to allow the user to choose a schedule.
 
 \end{verbatim}
+Most modern compilers do not preserve instruction ordering imposed at the.
+input language level, and instead rely on general purpose methods such
+as \emph{list scheduling} to order instructions. In the common case this frees
+the developer from the task of determining an efficient schedule, but in our
+case this feature serves as a roadblock. While the GCC~\cite{} provides flags for
+disabling instruction scheduling it comes at the cost of overall
+performance because we only plan to schedule loop code. Moreover, our plan
+involves using the Intel Compiler~\cite{}, thus we need a general solution for
+scheduling at the C code level.
+
+In order to enforce a schedule at the C code level we need to prevent the
+compiler from imposing its own scheduling. A compiler must preserve the
+semantics of the input code, so to take advantage of this fact we place a
+label before each instruction with a \emph{goto} nested in
+a \emph{switch-case} block. We declare the value for the \emph{switch}
+statement as a global variable set such that the code will always jump to the
+first instruction. Initially, we simply embedded each instruction in
+a \emph{switch-case} block, but both the GCC and Intel compiler would create
+multiple code paths and schedule each path individually. Figure~\ref{} shows
+an example of our method in practice.
+
+For our purposes this technique proved itself effective for enforcing a
+schedule, but in some cases the GCC would add superfluous instructions. Thus
+in the future a more general approach, such as a compiler directive, would be
+advantageous.
 
 
 \subsection{Putting it all Together}
