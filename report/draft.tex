@@ -145,16 +145,47 @@ while tuning the scheduling parameters.
 
 \subsection{Related Work}
 
-\begin{verbatim}
+Much research has been done to automatically generate the best implementation
+for a given architecture using tunable parameters. These parameters are
+related to standard techniques such as loop transformations, loop tilling and loop unrolling.
+In these research systems, there is a procedure that searches for the best combination of optimizations
+that will generate the most performant implementation.
+
+A very well-known system is ATLAS \cite{Whaley00automatedempirical} (Automatically Tuned Linear Algebra Software).
+It automatically generates high performant numerical libraries known as the Basic Linear Algebra Subprograms (BLAS)~\cite{Lawson:79}
+using \emph{global search} over the optimization parameters. Many programs are generated with different combinations
+and then run on the actual hardware to determine the best values that give the best performance.
+ATLAS can also make use of hand-coded BLAS routines in the case that the best solution performs worse than the hand-coded version.
+
+FFTW3~\cite{Frigo05thedesign} is also similar to ATLAS, although FFTW3 targets the implementation of the Discrete Fourier Transform.
+FFTW3 uses the concept of a \emph{planner} that receives as input the shape of the input data (array sizes, memory layouts, etc).
+The planner returns a \emph{plan} that is able to solve the problem using data that conforms to the initial shape. The planner measures
+the execution time of different plans and selects the best one. FFTW3 results show that the best plan performs very close
+to what an expert would do.
+
+While both ATLAS and FFTW3 use the same global search principle, Yotov~\cite{Yotov05issearch} showed that it is possible to get
+similar results just by using traditional \emph{analytical models}. In his work, he modified the search engine of ATLAS to use
+a model parameter estimator that receives hardware information (L1 cache size, number of registers, etc) and outputs
+one implementation of the target algorithm that should be best suited for the input parameters. Yotov wanted to show that
+traditional compilers should be able to get similar results as ATLAS without the need to execute multiple versions of the same
+algorithm to find the best solution. He showed that model driven optimization can achieve very similar results, without the need
+to do extensive and time consuming empirical search.
+
+\begin{comment}
 +( ) OSKI
 +( ) FFTW
 +( ) ATLAS/PhiPack
 +( ) [Yotov] discusses how ATLAS only needed fine tuning and many of the course
   adjustments could be determined analytically.
 +( ) Lam's software pipelining technique
-\end{verbatim}
+\end{comment}
 
-Lam's software pipelining technique~\cite{Lam:04}.
+Software pipelining was a technique invented by Patel and Davidson for scheduling hardware pipelines. Later Rau and Glaeser~\cite{Rau:81}
+were able to implement software pipelining in a compiler. In her seminal paper, Lam~\cite{Lam:88} showed that it is possible to implement
+software pipelining without hardware support and just instruction-level parallelism. This can be accomplished by using modulo variable
+expansion and unrolling of the loop code a small number of times, a technique called \emph{modulo renaming}.
+Lam also noted that inter-iteration dependences in a loop can create cycles in the dependence graph and therefore constraint the
+scheduling of all other instructions. Lam presented some techniques that deal with this problem.
 
 \subsection{Our Contributions}
 
