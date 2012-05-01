@@ -17,11 +17,11 @@
 
 \begin{abstract}
    Certain classes of algorithms are still hard to optimize by modern compilers
-   due to the differences between architecture features.
+   due to the differences between computer architectures.
    Numerical algorithms, for example, perform better when taking advantage of features
    such as software pipelining and loop unrolling. Expert programmers are usually able to
-   get the last drop of performance from the hardware, however, compilers cannot do the same
-   for loss of generality. The SPIRAL system bridges this gap by generating machine specific code
+   get the last drop of performance from the hardware, however, compilers cannot perform the same
+   feat for loss of generality. The SPIRAL system bridges this gap by generating machine specific code
    from high level algorithmic descriptions. We used the SPIRAL system to implement software
    pipelining for numerical algorithms with XXX (talk about scheduling). Our results show that
    ....
@@ -48,20 +48,20 @@ of their code and its scheduling of instructions, a task that compilers are usua
 they would have to guess the structure of the input data and then generate and run small instances of the problem
 to find an optimal solution.
 
-Automatic Program Generation Systems like SPIRAL~\cite{Pueschel:05} is a tool that is able to produce a system
+Automatic Program Generation Systems like SPIRAL~\cite{Pueschel:05} are tools that produce a system
 dependent and highly optimized implementation of an operation from a very high level mathematical description. 
-This is achieved though three mechanism: a language that captures the algorithmic details of an operation, a powerful
+This is achieved though three mechanisms: a language that captures the algorithmic details of an operation, a powerful
 rewriting mechanism that uses that knowledge to map these algorithms to the special features of the hardware (vector
 instructions and parallelism), and a backend code generator that produces a tuned implementation in a high-level language
-(usually C). The choice of the last item is that it provides a means for SPIRAL to be portable by allowing the compiler to do the very
-system specific task of mapping the code to machine instructions.
+(usually C). The later component provides a means for SPIRAL to be portable by allowing modern compilers to do the task
+of transforming C code to assembly.
 
-Since SPIRAL uses C as the target language, this comes at a cost since there is no control over register allocation and
+However, because SPIRAL uses C as the target language, this comes at a cost since there is no control over register allocation and
 scheduling. Scheduling in particular plays a very important role in the performance of numerical code. Even on an Out-of-Order
-processor long dependency chains can drastically degrade performance. Thus the goal of our project is to incorporate scheduling,
+processor long dependency chains can drastically degrade performance. Thus, the goal of our project is to incorporate scheduling,
 namely Software Pipelining, into SPIRAL in a way that we can produce highly-tuned schedules for target architectures.
 This way, we can still use the optimizations available in modern compilers while also performing aggressive scheduling optimizations
-that only experts would be able to do, the best of both worlds.
+that only experts would be able to do.
 
 In this project we explore the problem of scheduling code at the high-level and generate high-performance code that is comparable
 to an expert. XXX
@@ -103,20 +103,20 @@ to an expert. XXX
 \subsection{Our Approach}
 
 To approach this problem, we are directly using SPIRAL \emph{intermediate code} (called ICode)
-to represent several numerical algorithms. Any optimization that is done here can benefit
+to represent several numerical algorithms. Any optimization performed at this level can benefit
 lower level code.
 
 We apply several optimizations to the ICode representation of our algorithms. For example,
-for loop unrolling and loop tilling (or loop blocking), we several parameters that allows
+for loop unrolling and loop tilling (or loop blocking), we have several parameters that allows
 us to set how much unrolling will be done in the inner loop and the size of the tile.
 This gives us great freedom to select the best parameters that will make our final code more
 performant. In addition to these, we also apply software pipelining to the original code.
 We create three states, namely prologue, steady state, and epilogue, to setup, run and finish
-the computation, respectively.
+the pipelined computation, respectively.
 
 After these transformations, we generate C code from ICode. Of course, the final code will
-have all the optimizations performed at the ICode level, however we developed a technique that
-forces the target C compiler to obey the scheduling we set up during the software pipelining
+have all the optimizations performed at the ICode level, however we have developed a technique that
+forces the target C compiler to obey the scheduling we have set up during the software pipelining
 transformation. Usually, C compilers tend to remove such scheduling and perform their own optimizations,
 which is not what we want.
 
@@ -152,7 +152,7 @@ In these research systems, there is a procedure that searches for the best combi
 that will generate the most performant implementation.
 
 A very well-known system is ATLAS \cite{Whaley00automatedempirical} (Automatically Tuned Linear Algebra Software).
-It automatically generates high performant numerical libraries known as the Basic Linear Algebra Subprograms (BLAS)~\cite{Lawson:79}
+It automatically generates high performant numerical libraries known as the BLAS~\cite{Lawson:79} (Basic Linear Algebra Subprograms)
 using \emph{global search} over the optimization parameters. Many programs are generated with different combinations
 and then run on the actual hardware to determine the best values that give the best performance.
 ATLAS can also make use of hand-coded BLAS routines in the case that the best solution performs worse than the hand-coded version.
@@ -180,12 +180,13 @@ to do extensive and time consuming empirical search.
 +( ) Lam's software pipelining technique
 \end{comment}
 
-Software pipelining was a technique invented by Patel and Davidson for scheduling hardware pipelines. Later Rau and Glaeser~\cite{Rau:81}
-were able to implement software pipelining in a compiler. In her seminal paper, Lam~\cite{Lam:88} showed that it is possible to implement
+Software pipelining was a technique invented by Patel and Davidson~\cite{Patel:76} for scheduling hardware pipelines.
+Later, Rau and Glaeser~\cite{Rau:81} were able to implement software pipelining in a compiler. In her seminal paper,
+Lam~\cite{Lam:88} showed that it is possible to implement
 software pipelining without hardware support and just instruction-level parallelism. This can be accomplished by using modulo variable
 expansion and unrolling of the loop code a small number of times, a technique called \emph{modulo renaming}.
 Lam also noted that inter-iteration dependences in a loop can create cycles in the dependence graph and therefore constraint the
-scheduling of all other instructions. Lam presented some techniques that deal with this problem.
+scheduling of all other instructions. Lam presented some techniques to deal with this problem.
 
 \subsection{Our Contributions}
 
@@ -193,11 +194,11 @@ The contributions of this paper are the following:
 
 \begin{description}
    \item[Software Pipelining] We developed a transform that takes a numerical algorithm and adds software pipelining support
-   using three stages. We are able to mix this optimization with other optimizations such as loop unrolling and loop tilling.
-   Moreover, we were able to apply a technique that disallows C compilers to perform their own scheduling to the code and at
-   the same time, since we generate C code, we are able to use other C compiler optimizations. 
+   using three stages. We are able to use this optimization along with other optimizations such as loop unrolling and loop tilling.
+   Moreover, we were able to apply a technique that disallows C compilers to perform their own scheduling to the code. At the same
+   time, we still use all the other optimizations provided by the C compiler. 
    \item[Evaluation] We evaluated our programs using several tunable parameters for software pipelining,
-   loop unrolling and loop tilling. The results
+   loop unrolling and loop tilling. The results XXX
 \end{description}
 
 \begin{comment}
