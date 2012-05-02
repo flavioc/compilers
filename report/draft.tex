@@ -10,7 +10,7 @@
 \usepackage{amssymb}    % if you want extra symbols
 \usepackage{listings}
 %\usepackage{savetrees}
-
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -408,14 +408,6 @@ advantageous.
 +( ) What is our testbed? What machines do we use?
 \end{verbatim}
 
-\subsection{Simple Scalar}
-
-\begin{verbatim}
-+ What is simplescalar and why are we using it?
-+ We want to be able to determine the types of systems that will benefit the
-  most from this kind of scheduling.
-+ What parameters will we tune?
-\end{verbatim}
 
 \section{Experimental Evaluation}
 
@@ -432,6 +424,43 @@ be loads and the rest will be computations, so can we cluster the memory ops
 and issue them well before the computations.
 
 \end{verbatim}
+
+
+%% I know this is ugly, but if you have the chance Flavio can you beautify
+%% this with side-by-side figures
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=.5]{gemv_intel_core_i7_960.png}
+\end{center}
+\caption{Relative speedup of GEMV on the Intel Core i7 960.}
+\label{fig:gemv_corei7}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=.5]{gemv_atom.png}
+\end{center}
+\caption{Relative speedup of GEMV on the Intel Atom.}
+\label{fig:gemv_atom}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=.5]{gemv_core2_extreme_x9650.png}
+\end{center}
+\caption{Relative speedup of GEMV on the Intel Core2 Extreme X9560.}
+\label{fig:gemv_core2}
+\end{figure}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=.5]{gemv_xeon_e5320.png}
+\end{center}
+\caption{Relative speedup of GEMV on the Intel Xeon E5320.}
+\label{fig:gemv_corei7}
+\end{figure}
+
 
 \section{Surprises and Lessons Learned}
 \begin{verbatim}
