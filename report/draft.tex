@@ -346,10 +346,16 @@ is usually used in conjunction with loop unrolling, this enlarges the code
 even more. While this can be an issue on processors with little to no
 instruction cache, in practice on most modern systems this is not an issue.
 
-\begin{verbatim}
-+( ) Go into the background of software pipelining. How is it done?
-+( ) How do we do it in SPIRAL?
-\end{verbatim}
+The implementation of software pipelining in SPIRAL was straightforward, and
+involved three indexing functions each for the prologue, epilogue and steady
+state, which mapped the instructions in a fully unrolled loop to its correct
+position in an unrolled and software pipelined loop.
+
+Additionally, by targeting unrolled code we were able to bypass the need to do
+register allocation in SPIRAL. By insuring that the number of instructions in the
+pipelined loop is less than the number of registers on the system, the
+compiler was able to allocate registers with little to no spills.
+
 
 \subsection{Enforcing a Schedule}
 \begin{comment}
