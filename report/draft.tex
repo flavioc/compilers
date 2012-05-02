@@ -471,17 +471,17 @@ unrolling outperforms unrolling alone will help in bridging the gap between
 experts and APGS like SPIRAL.
 
 %% NOTE: need to explain this WAY better in the future.
-For our experiments we benchmarked multiple variants of Matrix-Vector(GEMV) on
-several systems with different microarchitectures. The variants included a
-baseline in which no loops were unrolled, two unrolled variants where the
-inner-most loop was fully unrolled and the other dimension was unrolled by
-either 1 or 4. Additionally, there were two variants that were software pipelined
-versions of the unrolled code. The two different unrollings resulted in
-completely different schedules in the software pipelined code. It is worth
-noting that we specifically chose our input sizes to fit entirely in the L1
-cache, so that performance would mostly be impacted by the number of
-instruction stalls.
-
+For our experiments we benchmarked multiple automatically generated variants
+of Matrix-Vector(GEMV) on several systems with different
+microarchitectures. The variants included a baseline in which no loops were
+unrolled, two unrolled variants where the inner-most loop was fully unrolled
+and the other dimension was unrolled by either 1 or 4. Additionally, there
+were two variants that were software pipelined versions of the unrolled
+code. The two different unrollings resulted in completely different schedules
+in the software pipelined code. It is worth noting that we specifically chose
+our input sizes to fit entirely in the L1 cache, so that performance would
+mostly be impacted by the number of instruction stalls. Lastly, we were using
+4-way 32bit floating point vector instructions.
 
 %% NOTE: in future, need actual parameters on these systems.
 The systems we tested on were selected for their varied scheduling
@@ -492,7 +492,7 @@ in-order system (Intel Atom).
 
 \section{Experimental Evaluation}
 
-\begin{verbatim}
+\begin{comment}
 + What algorithms are we using?
 + What systems are we using?
 
@@ -504,8 +504,27 @@ the delays. For example the first few instruction of a loop will most likely
 be loads and the rest will be computations, so can we cluster the memory ops
 and issue them well before the computations.
 
-\end{verbatim}
+\end{comment}
 
+As anticipated, the use of software pipelining provided a substantial
+performance gain over unrolling alone, and on the more modern system (Core i7,
+Fig.~\ref{fig:gemv_corei7}) yielded an impressive 1.8x speedup over unrolling
+alone. The other two out-of-order systems (Fig.~\ref{fig:gemv_core2} and
+Fig.~\ref{fig:gemv_xeon}) saw similar gains. The reason for performance
+improvement over simple unrolling is attributed to the fact that software
+pipelining breaks dependency chains and provides the processor's ready
+instruction window with a variety of independent instructions to choose from,
+thus reducing the risk of a dependency stall.
+
+
+%% NOTE: need to explain the delay thing better
+Interestingly, software pipelining did not provide as significant of a gain on
+the Intel Atom (Fig.~\ref{fig:gemv_atom}) as it did on the out-of-order
+systems. This could be attributed to the fact that we were using this
+processor in 32bit mode and thus we were limited to half the number of
+registers that are available in 64bit mode. Furthermore, our current software
+pipelining implementation does not support long delays, which might have been
+necessary on this system.
 
 %% I know this is ugly, but if you have the chance Flavio can you beautify
 %% this with side-by-side figures
