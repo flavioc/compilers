@@ -429,11 +429,27 @@ void test(double  *Y, double  *X) {
 
 
 \subsection{Putting it all Together}
-\begin{verbatim}
+\begin{comment}
 +( ) Requirements of the code before we can SP (what optimizations should we
   do/evaluate automatically?)
+\end{comment}
+% NOTE: in the future when we submit this somewhere the following section
+% should not be a steaming pile. shame on richard
 
-\end{verbatim}
+Through the ability to apply software pipelining on any loop in SPIRAL and a
+mechanism to enforce scheduling we can tailor a schedule of any
+operation written in ICode to a given system. Currently, our optimizations for
+tailoring software pipelining include strip-mining, reordering and unrolling the
+outer loops before we perform the actual scheduling. These few optimization
+provide a great degree of freedom with respect to tuning an implementation to
+a system.
+
+However, our current system is not without limitations. Because we are
+attempting to schedule at a high level, our ICode implementation must map to the
+underlying Instruction Set Architecture(ISA). Furthermore, our method
+restricts the quality of optimizations that the compiler can provide, thus the
+ICode must be aggressively optimized. Fortunately, SPIRAL was designed with
+the necessary facilities in place for this level of optimization.
 
 \section{Experimental Setup}
 \begin{verbatim}
