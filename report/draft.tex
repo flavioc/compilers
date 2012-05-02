@@ -3,6 +3,7 @@
 \date{\today}
 \documentclass[10pt]{article}
 
+\usepackage{url}
 \usepackage{verbatim}
 \usepackage{amsmath}
 \usepackage{amsfonts}   % if you want the fonts
@@ -327,7 +328,7 @@ With software pipelining, we can reduce
 pipeline stalls in the hardware, since the pipeline can be fed with new instructions from
 different loop iterations. This greatly increases instruction parallelism because we can
 start a new loop iteration before the past ones have completed. For this technique to be
-effective, each loop is transformed into three sections:
+effective, the loop is transformed into three sections:
 
 \begin{description}
    \item[Prologue:] We start adding several iterations to the hardware pipeline.
@@ -351,21 +352,22 @@ instruction cache, in practice on most modern systems this is not an issue.
 \end{verbatim}
 
 \subsection{Enforcing a Schedule}
-\begin{verbatim}
+\begin{comment}
 +(X) How do we enforce a schedule at the C level?
 +( ) What does the code look like?
 +(X) Would this hack always work? Either way it would be ideal to have a flag
      or pragma to allow the user to choose a schedule.
 
-\end{verbatim}
-Most modern compilers do not preserve instruction ordering imposed at the.
+\end{comment}
+
+Most modern compilers do not preserve instruction ordering imposed at the
 input language level, and instead rely on general purpose methods such
-as \emph{list scheduling} to order instructions. In the common case this frees
+as \emph{list scheduling} to order instructions. In the common case, this frees
 the developer from the task of determining an efficient schedule, but in our
-case this feature serves as a roadblock. While the GCC~\cite{} provides flags for
+case this feature serves as a roadblock. While the GCC~\cite{gccwebsite} provides flags for
 disabling instruction scheduling it comes at the cost of overall
 performance because we only plan to schedule loop code. Moreover, our plan
-involves using the Intel Compiler~\cite{}, thus we need a general solution for
+involves using the Intel Compiler~\cite{iccwebsite}, thus we need a general solution for
 scheduling at the C code level.
 
 In order to enforce a schedule at the C code level we need to prevent the
@@ -380,7 +382,7 @@ multiple code paths and schedule each path individually. Figure~\ref{} shows
 an example of our method in practice.
 
 For our purposes this technique proved itself effective for enforcing a
-schedule, but in some cases the GCC would add superfluous instructions. Thus
+schedule, but in some cases the GCC compiler would add superfluous instructions. Thus
 in the future a more general approach, such as a compiler directive, would be
 advantageous.
 
@@ -445,6 +447,10 @@ and issue them well before the computations.
     results from hardware counters to determine the best values for these?
 \end{verbatim}
 
+\section{Post-mortem and Final Notes}
+
+We propose distributing the credit as XX\% to Richard, XX\% to Flávio and XX\% to Berkin.
+XXX Richard did this, Flavio did that, Berkin did ...
 
 \bibliographystyle{plain}
 \bibliography{draft}
