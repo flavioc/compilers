@@ -564,23 +564,52 @@ necessary on this system.
 
 
 \section{Surprises and Lessons Learned}
-\begin{verbatim}
-\end{verbatim}
+Initially, we were going to use a simulator to model processors and determine
+how to map scheduling and unrolling parameters to the hardware
+model. Unfortunately, we wildly underestimated the difficulty of simply
+installing the simulator.
 
 \section{Conclusion}
-\begin{verbatim}
+\begin{comment}
 +
 +
 +
 + Future work:
   - We have incorporated delays in our system, the question is can we use the
     results from hardware counters to determine the best values for these?
-\end{verbatim}
+\end{comment}
+One of main limitations of APGS over expert programmers is that there are some
+optimizations that could not be done effectively without sacrificing the level
+of abstraction that such a system provides. The main limitation is that of
+scheduling, and for computationally dense operations renders APGS useless over
+experts. In this paper we demonstrated the effectiveness of schedule
+instructions in an APGS while maintaining a high level of abstraction. We
+achieved this goal in two steps. Firstly, we provided a mechanism for enforcing
+a schedule at the C code level. Secondly, we implemented a software pipelining
+transformation in SPIRAL. Through these two steps demonstrated significant
+performance gains of an automatically generated and tuned computationally
+dense operation on a variety of systems. This enhancement to SPIRAL is general
+and can easily be extended to a large class of operations.
+
+\subsection{Future Work}
+First and foremost we wish to test a larger variety of automatically generated
+operations. In particular, operations such as Matrix-Matrix Multiply stand to
+gain significantly from our system.
+
+Additionally, for the sake of the in-order systems such as the Atom, or those
+with lengthy instruction, we plan on implementing some mechanism for delaying
+instructions for arbitrary lengths.
+
+Lastly, we wish to incorporate list scheduling in addition to software
+pipelining. We suspect that the added granularity will open up further
+opportunities for performance gains.
+
 
 \section{Post-mortem and Final Notes}
 
-We propose distributing the credit as XX\% to Richard, XX\% to Flávio and XX\% to Berkin.
-XXX Richard did this, Flavio did that, Berkin did ...
+We propose distributing the credit as 33\% to Richard, 33\% to Flávio and 33\% to Berkin.
+Richard extended SPIRAL and devised the C scheduling mechanism, Flávio
+implemented the benchmarks, Berkin set up the experiments.
 
 \bibliographystyle{plain}
 \bibliography{draft}
