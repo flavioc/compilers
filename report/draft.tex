@@ -452,7 +452,7 @@ ICode must be aggressively optimized. Fortunately, SPIRAL was designed with
 the necessary facilities in place for this level of optimization.
 
 \section{Experimental Setup}
-\begin{verbatim}
+\begin{comment}
 +( ) What do we want to demonstrate? Software pipelining can improve the
      performance even on Out-of-order machines.
 
@@ -460,10 +460,34 @@ the necessary facilities in place for this level of optimization.
 
 +( ) What operations will benefit the most?
 
-+( ) We want to show the breakdown of the cycles for each test and where the
-     stalls were occurring.
 +( ) What is our testbed? What machines do we use?
-\end{verbatim}
+\end{comment}
+
+The goal of our experiments is to demonstrate the effectiveness of software
+pipelining at the C code level for automatically generated numerical
+operations. Instruction scheduling is one of the few optimizations that expert
+has over SPIRAL. Thus, showing that software pipelining in addition to loop
+unrolling outperforms unrolling alone will help in bridging the gap between
+experts and APGS like SPIRAL.
+
+%% NOTE: need to explain this WAY better in the future.
+For our experiments we benchmarked multiple variants of Matrix-Vector(GEMV) on
+several systems with different microarchitectures. The variants included a
+baseline in which no loops were unrolled, two unrolled variants where the
+inner-most loop was fully unrolled and the other dimension was unrolled by
+either 1 or 4. Additionally, there were two variants that were software pipelined
+versions of the unrolled code. The two different unrollings resulted in
+completely different schedules in the software pipelined code. It is worth
+noting that we specifically chose our input sizes to fit entirely in the L1
+cache, so that performance would mostly be impacted by the number of
+instruction stalls.
+
+
+%% NOTE: in future, need actual parameters on these systems.
+The systems we tested on were selected for their varied scheduling
+facilities with respect to instruction window size where applicable. We chose three
+out-of-order architectures (Core i7 960, Core2 X9650, Xeon E5320) and a single
+in-order system (Intel Atom).
 
 
 \section{Experimental Evaluation}
@@ -495,14 +519,6 @@ and issue them well before the computations.
 
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[scale=.5]{gemv_atom.png}
-\end{center}
-\caption{Relative speedup of GEMV on the Intel Atom.}
-\label{fig:gemv_atom}
-\end{figure}
-
-\begin{figure}[ht]
-\begin{center}
 \includegraphics[scale=.5]{gemv_core2_extreme_x9650.png}
 \end{center}
 \caption{Relative speedup of GEMV on the Intel Core2 Extreme X9560.}
@@ -515,7 +531,16 @@ and issue them well before the computations.
 \includegraphics[scale=.5]{gemv_xeon_e5320.png}
 \end{center}
 \caption{Relative speedup of GEMV on the Intel Xeon E5320.}
-\label{fig:gemv_corei7}
+\label{fig:gemv_xeon}
+\end{figure}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=.5]{gemv_atom.png}
+\end{center}
+\caption{Relative speedup of GEMV on the Intel Atom.}
+\label{fig:gemv_atom}
 \end{figure}
 
 
