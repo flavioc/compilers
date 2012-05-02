@@ -24,7 +24,7 @@
    get the last drop of performance from the hardware, however, compilers cannot perform the same
    feat for loss of generality. The SPIRAL system bridges this gap by generating machine specific code
    from high level algorithmic descriptions. We used the SPIRAL system to implement software
-   pipelining for numerical algorithms with XXX (talk about scheduling). Our results show that
+   pipelining for numerical algorithms in order to bridge this gap. Our results show that
    by unrolling and applying software pipelining at the C code level, we can
    improve performance by up to 30\% over unrolling alone.
 \end{abstract}
@@ -66,7 +66,7 @@ This way, we can still use the optimizations available in modern compilers while
 that only experts would be able to do.
 
 In this project we explore the problem of scheduling code at the high-level and generate high-performance code that is comparable
-to an expert. XXX
+to an expert.
 
 \begin{comment}
 +( ) APGS aim to replace expert programmers for high-performance code.
@@ -200,7 +200,7 @@ The contributions of this paper are the following:
    Moreover, we were able to apply a technique that disallows C compilers to perform their own scheduling to the code. At the same
    time, we still use all the other optimizations provided by the C compiler. 
    \item[Evaluation] We evaluated our programs using several tunable parameters for software pipelining,
-   loop unrolling and loop tilling. The results XXX
+   loop unrolling and loop tilling. The results show very good speedups over code that only uses loop unrolling.
 \end{description}
 
 \begin{comment}
@@ -320,7 +320,7 @@ void swap(int  *x, int  *y) {
 
 Software pipelining is a coding technique that optimizes loops by overlapping instructions
 from different loop iterations in order to exploit instruction level parallelism.
-Due to this overlap we say that software pipelining is a type of out-of-order execution.
+Due to this overlap we say that software pipelining is a type of Out-Of-Order execution.
 While software pipelining is somewhat similar to hardware pipelining, the order of the executions
 is not determined by the processor but by the compiler or the programmer.
 
@@ -370,7 +370,7 @@ Most modern compilers do not preserve instruction ordering imposed at the
 input language level, and instead rely on general purpose methods such
 as \emph{list scheduling} to order instructions. In the common case, this frees
 the developer from the task of determining an efficient schedule, but in our
-case this feature serves as a roadblock. While the GCC~\cite{gccwebsite} provides flags for
+case this feature serves as a roadblock. While the GCC~\cite{gccwebsite} compiler provides flags for
 disabling instruction scheduling it comes at the cost of overall
 performance because we only plan to schedule loop code. Moreover, our plan
 involves using the Intel Compiler~\cite{iccwebsite}, thus we need a general solution for
@@ -439,14 +439,14 @@ void test(double  *Y, double  *X) {
 Through the ability to apply software pipelining on any loop in SPIRAL and a
 mechanism to enforce scheduling we can tailor a schedule of any
 operation written in ICode to a given system. Currently, our optimizations for
-tailoring software pipelining include strip-mining, reordering and unrolling the
+tailoring software pipelining include loop tilling (strip-mining), reordering and unrolling the
 outer loops before we perform the actual scheduling. These few optimization
 provide a great degree of freedom with respect to tuning an implementation to
 a system.
 
 However, our current system is not without limitations. Because we are
 attempting to schedule at a high level, our ICode implementation must map to the
-underlying Instruction Set Architecture(ISA). Furthermore, our method
+underlying Instruction Set Architecture (ISA). Furthermore, our method
 restricts the quality of optimizations that the compiler can provide, thus the
 ICode must be aggressively optimized. Fortunately, SPIRAL was designed with
 the necessary facilities in place for this level of optimization.
@@ -465,14 +465,14 @@ the necessary facilities in place for this level of optimization.
 
 The goal of our experiments is to demonstrate the effectiveness of software
 pipelining at the C code level for automatically generated numerical
-operations. Instruction scheduling is one of the few optimizations that expert
-has over SPIRAL. Thus, showing that software pipelining in addition to loop
+operations. Instruction scheduling is one of the few optimizations that programmer experts
+have over SPIRAL. Thus, showing that software pipelining in addition to loop
 unrolling outperforms unrolling alone will help in bridging the gap between
 experts and APGS like SPIRAL.
 
 %% NOTE: need to explain this WAY better in the future.
 For our experiments we benchmarked multiple automatically generated variants
-of Matrix-Vector(GEMV) on several systems with different
+of Matrix-Vector (GEMV) on several systems with different
 microarchitectures. The variants included a baseline in which no loops were
 unrolled, two unrolled variants where the inner-most loop was fully unrolled
 and the other dimension was unrolled by either 1 or 4. Additionally, there
@@ -480,13 +480,13 @@ were two variants that were software pipelined versions of the unrolled
 code. The two different unrollings resulted in completely different schedules
 in the software pipelined code. It is worth noting that we specifically chose
 our input sizes to fit entirely in the L1 cache, so that performance would
-mostly be impacted by the number of instruction stalls. Lastly, we were using
+mostly be impacted by the number of instruction stalls. Lastly, we used
 4-way 32bit floating point vector instructions.
 
 %% NOTE: in future, need actual parameters on these systems.
 The systems we tested on were selected for their varied scheduling
 facilities with respect to instruction window size where applicable. We chose three
-out-of-order architectures (Core i7 960, Core2 X9650, Xeon E5320) and a single
+Out-Of-Order architectures (Core i7 960, Core2 X9650, Xeon E5320) and a single
 in-order system (Intel Atom).
 
 
@@ -509,7 +509,7 @@ and issue them well before the computations.
 As anticipated, the use of software pipelining provided a substantial
 performance gain over unrolling alone, and on the more modern system (Core i7,
 Fig.~\ref{fig:gemv_corei7}) yielded an impressive 1.8x speedup over unrolling
-alone. The other two out-of-order systems (Fig.~\ref{fig:gemv_core2} and
+alone. The other two Out-Of-Order systems (Fig.~\ref{fig:gemv_core2} and
 Fig.~\ref{fig:gemv_xeon}) saw similar gains. The reason for performance
 improvement over simple unrolling is attributed to the fact that software
 pipelining breaks dependency chains and provides the processor's ready
@@ -519,7 +519,7 @@ thus reducing the risk of a dependency stall.
 
 %% NOTE: need to explain the delay thing better
 Interestingly, software pipelining did not provide as significant of a gain on
-the Intel Atom (Fig.~\ref{fig:gemv_atom}) as it did on the out-of-order
+the Intel Atom (Fig.~\ref{fig:gemv_atom}) as it did on the Out-Of-Order
 systems. This could be attributed to the fact that we were using this
 processor in 32bit mode and thus we were limited to half the number of
 registers that are available in 64bit mode. Furthermore, our current software
@@ -596,7 +596,7 @@ First and foremost we wish to test a larger variety of automatically generated
 operations. In particular, operations such as Matrix-Matrix Multiply stand to
 gain significantly from our system.
 
-Additionally, for the sake of the in-order systems such as the Atom, or those
+Additionally, for the sake of the In-Order systems such as the Atom, or those
 with lengthy instruction, we plan on implementing some mechanism for delaying
 instructions for arbitrary lengths.
 
